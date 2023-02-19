@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ProductApp.Application.Dto;
+using ProductApp.Application.Features.Commands.CreateProductCommand;
+using ProductApp.Application.Features.Queries.GetAllProducts;
+using ProductApp.Application.Features.Queries.GetProductById;
 using ProductApp.Application.Interfaces.Repository;
 
 namespace ProductApp.WebApi.Controllers
@@ -9,22 +13,28 @@ namespace ProductApp.WebApi.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly IProductRepository productRepository;
+        private readonly IMediator mediator;
 
-        public ProductController(IProductRepository productRepository)
+        public ProductController(IMediator mediator )
         {
-            this.productRepository = productRepository;
+            this.mediator = mediator;
         }
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-           var allList =  await productRepository.GetAllAsync();
-           var result = allList.Select(i => new ProductViewDto()
-            {
-                Id = i.Id,
-                Name = i.Name,
-            }).ToList();
-            return Ok(result);
+            var query = new GetAllProductsQuery();
+            return Ok(await mediator.Send(query));
+        }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(Guid id)
+        {
+            var query = new GetProductByIdQuery() { Id = id};
+            return Ok(await mediator.Send(query));
+        }
+        [HttpPost] 
+        public async Task<IActionResult> Post(CreateProductCommand command)
+        {
+            return Ok(await mediator.Send(command));
         }
     }
 }
