@@ -8,7 +8,7 @@ namespace ProductApp.Application.Dto
 {
     public class ProductViewDto
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public String? Name { get; set; }
     }
 }
